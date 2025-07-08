@@ -8,6 +8,7 @@ $(document).ready(function() {
     // Initial UI setup
     hideAllSections();
     $('#searchType').trigger('change'); // Trigger change to set initial input visibility
+    fetchLatestMovies(); // Load latest movies on page load
 
     // --- Event Handlers ---
 
