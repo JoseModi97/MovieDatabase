@@ -44,41 +44,8 @@ function displayOmdbDetails(data) {
     }
 }
 
-function fetchOmdbDetails(query, type, apiKey, baseUrl) {
-    let searchParams = { apikey: apiKey, plot: 'full' };
-    if (query.toLowerCase().startsWith('tt') && /^\d+$/.test(query.substring(2))) {
-        searchParams.i = query;
-    } else {
-        searchParams.t = query;
-    }
-    if (type === 'tv') {
-        searchParams.type = 'series';
-    } else {
-        searchParams.type = 'movie';
-    }
-
-    $.ajax({
-        url: baseUrl,
-        method: 'GET',
-        dataType: 'json',
-        data: searchParams,
-        success: function(data) {
-            if (data.Response === "True") {
-                currentOmdbData = data; // Set global currentOmdbData
-                displayOmdbDetails(data);
-            } else {
-                displayError(data.Error || "Media not found in OMDb.");
-                currentOmdbData = null;
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error("OMDb AJAX Error:", textStatus, errorThrown);
-            displayError("Failed to fetch OMDb data.");
-            currentOmdbData = null;
-        }
-    });
-}
-
+// buildEmbedUrl remains global for now as its usage pattern is similar
+// and we are focusing on fixing OMDb search first.
 function buildEmbedUrl(type, id, season, episode, vidsrcBaseUrl) {
     let url = vidsrcBaseUrl;
     let queryParams = [];
@@ -137,6 +104,42 @@ $(document).ready(function() {
     hideAllSections();
     $('#searchType').trigger('change');
 
+    // Define fetchOmdbDetails inside ready to close over omdbApiKey and omdbBaseUrl
+    function fetchOmdbDetails(query, type) {
+        let searchParams = { apikey: omdbApiKey, plot: 'full' }; // Uses omdbApiKey from outer scope
+        if (query.toLowerCase().startsWith('tt') && /^\d+$/.test(query.substring(2))) {
+            searchParams.i = query;
+        } else {
+            searchParams.t = query;
+        }
+        if (type === 'tv') {
+            searchParams.type = 'series';
+        } else {
+            searchParams.type = 'movie';
+        }
+
+        $.ajax({
+            url: omdbBaseUrl, // Uses omdbBaseUrl from outer scope
+            method: 'GET',
+            dataType: 'json',
+            data: searchParams,
+            success: function(data) {
+                if (data.Response === "True") {
+                    currentOmdbData = data;
+                    displayOmdbDetails(data);
+                } else {
+                    displayError(data.Error || "Media not found in OMDb.");
+                    currentOmdbData = null;
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error("OMDb AJAX Error:", textStatus, errorThrown);
+                displayError("Failed to fetch OMDb data.");
+                currentOmdbData = null;
+            }
+        });
+    }
+
     // --- Event Handlers ---
     $('#searchType').on('change', function() {
         const type = $(this).val();
@@ -169,7 +172,7 @@ $(document).ready(function() {
         hideAllSections();
 
         if (searchType === 'movie' || searchType === 'tv') {
-            fetchOmdbDetails(query, searchType, omdbApiKey, omdbBaseUrl);
+            fetchOmdbDetails(query, searchType); // Call updated function (omdbApiKey, omdbBaseUrl are in its closure)
         } else {
             let embedUrl = '';
             let videoTitle = `Playing content for ID: ${query}`;
