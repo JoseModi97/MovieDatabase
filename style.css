@@ -1,0 +1,75 @@
+body {
+    font-family: sans-serif;
+    background-color: #f8f9fa; /* Light gray background */
+}
+
+header h1 {
+    color: #343a40; /* Dark gray for heading */
+}
+
+#movieDetailsCard {
+    margin-top: 20px;
+}
+
+#moviePoster {
+    max-width: 100%;
+    border-radius: 8px; /* As per UI guidelines */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+}
+
+/* Responsive video iframe styles (Section 7.3 SRS) */
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 8px; /* Optional: match card styling */
+    background-color: #000; /* Black background for the iframe container */
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0; /* Remove default iframe border */
+}
+
+/* Custom styling for the card to enhance appearance */
+.card.shadow-sm {
+    border: none; /* Remove default card border if shadow is preferred */
+}
+
+.card-title {
+    font-size: 1.75rem; /* Larger title */
+    font-weight: bold;
+}
+
+.card-text strong {
+    color: #495057; /* Slightly lighter text for labels */
+}
+
+/* Ensure content stacks vertically on small screens - Bootstrap handles much of this,
+   but we can add specifics if needed. For now, relying on Bootstrap's col-md-* classes. */
+
+/* Style for the search button to make it stand out a bit more if needed */
+#searchButton {
+    /* Example: Slightly darker blue if needed, but Bootstrap primary is usually fine */
+    /* background-color: #0056b3;
+    border-color: #0056b3; */
+}
+
+/* Making sure the poster image in the card is well-behaved */
+@media (max-width: 767.98px) { /* Small devices (landscape phones, less than 768px) */
+    #moviePoster {
+        max-height: 300px; /* Adjust max height for smaller screens */
+        margin-bottom: 1rem; /* Add some space below poster when stacked */
+    }
+    .card-body {
+        text-align: center; /* Center text when stacked */
+    }
+    #movieDetailsCard .row > div {
+        text-align: center; /* Center content of columns */
+    }
+}

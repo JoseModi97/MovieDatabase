@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Movie Search App</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS (to be created later) -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <header class="text-center mb-4">
+            <h1>🎬 Movie Search App</h1>
+        </header>
+
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" id="movieTitleInput" class="form-control" placeholder="Enter movie title or IMDb ID">
+                    <button id="searchButton" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Alert Placeholder -->
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+            Movie not found.
+        </div>
+
+        <!-- Movie Details Card -->
+        <div id="movieDetailsCard" class="card shadow-sm d-none">
+            <div class="row g-0">
+                <div class="col-md-4 text-center">
+                    <img id="moviePoster" src="" class="img-fluid rounded-start p-2" alt="Movie Poster" style="max-height: 450px;">
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <h5 id="movieTitle" class="card-title"></h5>
+                        <p class="card-text">
+                            <strong>Year:</strong> <span id="movieYear"></span><br>
+                            <strong>Genre:</strong> <span id="movieGenre"></span><br>
+                            <strong>Director:</strong> <span id="movieDirector"></span><br>
+                            <strong>Actors:</strong> <span id="movieActors"></span><br>
+                            <strong>Plot:</strong> <span id="moviePlot"></span><br>
+                            <strong>IMDb Rating:</strong> <span id="movieRating"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Embedded Video Player -->
+        <div id="videoPlayerSection" class="mt-4 d-none">
+            <div class="video-wrapper">
+                <iframe id="vidsrcFrame"
+                        src=""
+                        frameborder="0"
+                        allowfullscreen
+                        loading="lazy">
+                </iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS (to be created later) -->
+    <script src="script.js"></script>
+</body>
+</html>
