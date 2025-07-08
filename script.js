@@ -19,6 +19,10 @@ $(document).ready(function() {
         $('#seasonInput, #episodeInput, #autonextSwitchContainer').addClass('d-none');
         $('#subUrlInput, #dsLangInput, #autoplayCheck').removeClass('d-none'); // Common for embed URLs
 
+        // Clear search input and hide suggestions
+        $('#searchInput').val('');
+        $('#suggestionsDropdown').hide().empty();
+
         if (type === 'episode-embed') {
             $('#seasonInput, #episodeInput, #autonextSwitchContainer').removeClass('d-none');
             $('#searchInput').attr('placeholder', 'Enter IMDb/TMDB ID');
