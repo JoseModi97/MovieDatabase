@@ -75,8 +75,8 @@ $(document).ready(function() {
 
     function embedVideo(imdbID) {
         if (imdbID) {
-            // SRS specified: https://vidsrc.to/embed/movie?imdb={imdbID}
-            const videoUrl = `https://vidsrc.to/embed/movie?imdb=${imdbID}`;
+            // User feedback: Use path parameter format https://vidsrc.to/embed/movie/{imdbID}
+            const videoUrl = `https://vidsrc.to/embed/movie/${imdbID}`;
             $('#vidsrcFrame').attr('src', videoUrl);
             $('#videoPlayerSection').removeClass('d-none');
         } else {
