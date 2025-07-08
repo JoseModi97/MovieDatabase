@@ -26,37 +26,43 @@ function displayLatestMovies(moviesArray) {
         $latestMoviesGrid.append(movieCardHtml);
     });
 
+    // moviesToShow is available here due to closure
     $('#latestMoviesGrid .movie-card-latest').on('click', function() {
-        const imdbID = $(this).data('imdbid');
-        if (imdbID && imdbID.startsWith('tt')) {
-            try {
-                const numericPart = parseInt(imdbID.substring(2));
-                const nextNumericPart = numericPart + 1;
-                const nextImdbID = 'tt' + nextNumericPart.toString().padStart(imdbID.substring(2).length, '0');
+        const clickedImdbID = $(this).data('imdbid');
+        const clickedTitle = $(this).data('title'); // Keep for fallback
 
-                // Set search type and trigger change first to ensure UI elements (like season/episode inputs) are correctly shown/hidden
+        if (moviesToShow && moviesToShow.length > 0) {
+            const clickedIndex = moviesToShow.findIndex(movie => movie.imdbID === clickedImdbID);
+
+            if (clickedIndex !== -1) {
+                let nextIndex = clickedIndex + 1;
+                if (nextIndex >= moviesToShow.length) {
+                    nextIndex = 0; // Wrap around to the first movie
+                }
+
+                const nextMovieTitle = moviesToShow[nextIndex].Title;
+
                 $('#searchType').val('movie');
-                $('#searchType').trigger('change');
-                // Now, set the search input value. This overrides any clearing done by the 'change' handler.
-                $('#searchInput').val(nextImdbID);
+                $('#searchType').trigger('change'); // Handles UI changes for movie type (e.g., hides S/Ep inputs)
+                $('#searchInput').val(nextMovieTitle); // Set search input to the next movie's title
                 $('#searchButton').click();
-                $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500); // Scroll to top search/results area
-            } catch (e) {
-                console.error("Error processing IMDb ID:", e);
-                // Fallback to title search if IMDb ID processing fails
-                const title = $(this).data('title');
+                $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
+            } else {
+                // Fallback: If clicked movie's IMDb ID not found in moviesToShow (shouldn't happen if list is consistent)
+                // or if something else goes wrong, search for the clicked movie's own title.
+                console.warn("Clicked movie IMDb ID not found in moviesToShow list. Searching by its own title.");
                 $('#searchType').val('movie');
                 $('#searchType').trigger('change');
-                $('#searchInput').val(title); // Set title after 'change' trigger
+                $('#searchInput').val(clickedTitle);
                 $('#searchButton').click();
                 $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
             }
         } else {
-            // Fallback to title search if imdbID is not available or not in expected format
-            const title = $(this).data('title');
+            // Fallback: If moviesToShow is empty or undefined, search for the clicked movie's own title.
+            console.warn("moviesToShow list is empty or undefined. Searching by clicked item's own title.");
             $('#searchType').val('movie');
             $('#searchType').trigger('change');
-            $('#searchInput').val(title); // Set title after 'change' trigger
+            $('#searchInput').val(clickedTitle);
             $('#searchButton').click();
             $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
         }
