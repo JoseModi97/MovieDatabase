@@ -27,12 +27,18 @@ function displayLatestMovies(moviesArray) {
     });
 
     $('#latestMoviesGrid .movie-card-latest').on('click', function() {
-        const title = $(this).data('title');
-        $('#searchInput').val(title);
-        $('#searchType').val('movie');
-        $('#searchType').trigger('change');
-        $('#searchButton').click();
-        $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
+        const imdbID = $(this).data('imdbid'); // Get IMDb ID from data attribute
+        $('#searchInput').val(imdbID);        // Populate search input with IMDb ID
+        $('#searchType').val('movie');        // Ensure search type is 'movie' for OMDb ID/Title search
+        // OMDb API handles 'i' parameter for ID search and 't' for title,
+        // 'movie' type with an IMDb ID will be treated as an ID search by fetchOmdbDetails.
+        $('#searchType').trigger('change');   // Trigger change for any UI updates tied to search type
+        $('#searchButton').click();           // Trigger the main search button
+
+        // Optional: Scroll to search results area or top of page
+        $('html, body').animate({
+            scrollTop: $('.container.mt-5').offset().top // Scrolls to the main container
+        }, 500);
     });
 }
 
@@ -229,6 +235,7 @@ $(document).ready(function() {
             displayError("Please enter a search query.");
             return;
         }
+        $('#latestMoviesSection').addClass('d-none'); // Hide latest movies section
         hideAllSections();
 
         if (searchType === 'movie' || searchType === 'tv') {
