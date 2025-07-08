@@ -27,12 +27,37 @@ function displayLatestMovies(moviesArray) {
     });
 
     $('#latestMoviesGrid .movie-card-latest').on('click', function() {
-        const title = $(this).data('title');
-        $('#searchInput').val(title);
-        $('#searchType').val('movie');
-        $('#searchType').trigger('change');
-        $('#searchButton').click();
-        $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
+        const imdbID = $(this).data('imdbid');
+        if (imdbID && imdbID.startsWith('tt')) {
+            try {
+                const numericPart = parseInt(imdbID.substring(2));
+                const nextNumericPart = numericPart + 1;
+                const nextImdbID = 'tt' + nextNumericPart.toString().padStart(imdbID.substring(2).length, '0');
+
+                $('#searchInput').val(nextImdbID);
+                $('#searchType').val('movie'); // Ensure search type is movie for OMDb ID search
+                $('#searchType').trigger('change'); // Trigger change to update UI if necessary
+                $('#searchButton').click();
+                $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500); // Scroll to top search/results area
+            } catch (e) {
+                console.error("Error processing IMDb ID:", e);
+                // Fallback to title search if IMDb ID processing fails
+                const title = $(this).data('title');
+                $('#searchInput').val(title);
+                $('#searchType').val('movie');
+                $('#searchType').trigger('change');
+                $('#searchButton').click();
+                $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
+            }
+        } else {
+            // Fallback to title search if imdbID is not available or not in expected format
+            const title = $(this).data('title');
+            $('#searchInput').val(title);
+            $('#searchType').val('movie');
+            $('#searchType').trigger('change');
+            $('#searchButton').click();
+            $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
+        }
     });
 }
 
