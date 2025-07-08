@@ -230,6 +230,7 @@ $(document).ready(function() {
             return;
         }
         hideAllSections();
+        $('#latestMoviesSection').addClass('d-none'); // Hide latest movies section
 
         if (searchType === 'movie' || searchType === 'tv') {
             fetchOmdbDetails(query, searchType, omdbApiKey, omdbBaseUrl);
