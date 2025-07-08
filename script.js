@@ -256,11 +256,9 @@ function embedVideo(url, title = "Playing Media") {
 
 // --- Document Ready ---
 $(document).ready(function() {
-    const omdbApiKey = '67b85ad0';
-    const omdbBaseUrl = 'http://www.omdbapi.com/';
-    const vidsrcBaseUrl = 'https://vidsrc.xyz/';
-
     // Store API keys from hidden fields (already set in HTML)
+    // The following lines correctly define the constants by reading from hidden inputs.
+    // The duplicate, hardcoded declarations that were here previously have been removed.
     const omdbApiKey = $('#omdbApiKey').val();
     const omdbBaseUrl = $('#omdbBaseUrl').val();
     const vidsrcBaseUrl = $('#vidsrcBaseUrl').val();
