@@ -1,21 +1,68 @@
 body {
-    font-family: sans-serif;
-    background-color: #f8f9fa; /* Light gray background */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Common professional font stack */
+    background-color: #e9ecef; /* Slightly different light gray for body */
+    color: #333; /* Default text color */
+    line-height: 1.6;
 }
 
-header h1 {
-    color: #343a40; /* Dark gray for heading */
+.app-header {
+    background-color: #ffffff; /* White background for header area */
+    /* border-bottom: 1px solid #dee2e6; /* Subtle border */
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+    margin-bottom: 2rem; /* Space below header */
 }
+
+.app-title { /* Changed from header h1 */
+    color: #2c3e50; /* Darker, more professional blue/gray */
+    font-weight: 300; /* Lighter font weight for a modern look */
+    font-size: 2.8rem; /* Larger title */
+    margin-bottom: 1.5rem !important; /* More space below title */
+}
+
+.search-bar-group .form-control {
+    border-right: none; /* Remove border between input and button if they are grouped */
+    box-shadow: 0 1px 3px rgba(0,0,0,.07) inset; /* Subtle inner shadow */
+}
+.search-bar-group .form-control:focus {
+    box-shadow: 0 1px 3px rgba(0,0,0,.07) inset, 0 0 0 0.25rem rgba(13,110,253,.25); /* Keep Bootstrap focus */
+}
+
 
 #movieDetailsCard {
     margin-top: 20px;
+    margin-bottom: 2.5rem; /* More space below the card */
+    border: none; /* Removing default border for a cleaner look with shadow */
+    border-radius: 0.5rem; /* Slightly more pronounced border radius */
+}
+
+#movieDetailsCard .card-body {
+    padding: 2rem; /* Increased padding inside card body */
 }
 
 #moviePoster {
     max-width: 100%;
-    border-radius: 8px; /* As per UI guidelines */
-    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border-radius: 0.35rem; /* Consistent with card body */
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Softer shadow for poster */
+    border: 1px solid #dee2e6; /* Subtle border for the poster */
 }
+
+#movieDetailsCard .card-title {
+    font-size: 2rem; /* Slightly larger title in card */
+    font-weight: 500; /* Medium weight */
+    margin-bottom: 1rem;
+}
+
+#movieDetailsCard .card-text strong {
+    font-weight: 600; /* Bolder labels */
+    color: #343a40; /* Darker label color */
+    margin-right: 0.25rem;
+}
+
+#movieDetailsCard .card-text span {
+    color: #495057; /* Data color */
+}
+
 
 /* Responsive video iframe styles (Section 7.3 SRS) */
 .video-wrapper {
@@ -23,8 +70,15 @@ header h1 {
     padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
     height: 0;
     overflow: hidden;
-    border-radius: 8px; /* Optional: match card styling */
-    background-color: #000; /* Black background for the iframe container */
+    border-radius: 0.5rem; /* Consistent border radius */
+    background-color: #000;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.15); /* More pronounced shadow for video */
+    margin-bottom: 2rem; /* Space below video player */
+}
+
+#videoPlayerHeading {
+    color: #343a40;
+    font-size: 1.75rem;
 }
 
 .video-wrapper iframe {
@@ -36,18 +90,30 @@ header h1 {
     border: 0; /* Remove default iframe border */
 }
 
+/* Error Alert Styling */
+#errorAlert {
+    padding: 1rem 1.5rem; /* More padding */
+    font-weight: 500;
+    display: flex; /* For aligning icon and text */
+    align-items: center;
+}
+
+#errorAlert::before {
+    content: "⚠️"; /* Example: Warning icon */
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+}
+
+
 /* Custom styling for the card to enhance appearance */
 .card.shadow-sm {
     border: none; /* Remove default card border if shadow is preferred */
 }
 
-.card-title {
-    font-size: 1.75rem; /* Larger title */
-    font-weight: bold;
-}
+/* .card-title is handled by #movieDetailsCard .card-title now */
 
-.card-text strong {
-    color: #495057; /* Slightly lighter text for labels */
+.card-text strong { /* This is also handled by #movieDetailsCard .card-text strong */
+    /* color: #495057; */ /* Slightly lighter text for labels */
 }
 
 /* Ensure content stacks vertically on small screens - Bootstrap handles much of this,
@@ -63,13 +129,19 @@ header h1 {
 /* Making sure the poster image in the card is well-behaved */
 @media (max-width: 767.98px) { /* Small devices (landscape phones, less than 768px) */
     #moviePoster {
-        max-height: 300px; /* Adjust max height for smaller screens */
-        margin-bottom: 1rem; /* Add some space below poster when stacked */
+        max-height: 350px; /* Adjust max height for smaller screens, was 300px */
+        margin-bottom: 1.5rem; /* Add some space below poster when stacked */
     }
-    .card-body {
-        text-align: center; /* Center text when stacked */
+    #movieDetailsCard .card-body { /* Ensure card body text aligns left on mobile too for consistency */
+        text-align: left;
     }
-    #movieDetailsCard .row > div {
-        text-align: center; /* Center content of columns */
+    #movieDetailsCard .row > div.text-center { /* If poster column is text-center, keep it */
+       /* text-align: center; */ /* Let this be handled by specific classes if needed */
+    }
+    .app-title {
+        font-size: 2.2rem; /* Smaller title on mobile */
+    }
+    #movieDetailsCard .card-title {
+        font-size: 1.6rem; /* Smaller card title on mobile */
     }
 }

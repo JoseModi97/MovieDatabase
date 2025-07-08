@@ -2,10 +2,12 @@ $(document).ready(function() {
     const apiKey = '67b85ad0';
     const omdbBaseUrl = 'http://www.omdbapi.com/';
 
-    // Initially hide elements that should only appear after a search
+    // Initially hide elements
     $('#movieDetailsCard').addClass('d-none');
     $('#videoPlayerSection').addClass('d-none');
+    $('#videoPlayerHeading').addClass('d-none');
     $('#errorAlert').addClass('d-none');
+    $('#loadingSpinner').addClass('d-none');
 
     $('#searchButton').on('click', function() {
         const query = $('#movieTitleInput').val().trim();
@@ -14,11 +16,13 @@ $(document).ready(function() {
             return;
         }
 
-        // Clear previous results and errors
+        // Show spinner, clear previous results and errors
+        $('#loadingSpinner').removeClass('d-none');
         hideError();
         $('#movieDetailsCard').addClass('d-none');
+        $('#videoPlayerHeading').addClass('d-none');
         $('#videoPlayerSection').addClass('d-none');
-        $('#vidsrcFrame').attr('src', ''); // Stop video if one was playing
+        $('#vidsrcFrame').attr('src', ''); // Stop video
 
         let searchParams = {
             apikey: apiKey
@@ -36,12 +40,17 @@ $(document).ready(function() {
             method: 'GET',
             dataType: 'json',
             data: searchParams,
+            beforeSend: function() {
+                $('#loadingSpinner').removeClass('d-none');
+                $('#searchButton').prop('disabled', true); // Disable button during search
+            },
             success: function(data) {
                 if (data.Response === "True") {
                     displayMovieDetails(data);
                     if (data.imdbID) {
                         embedVideo(data.imdbID);
                     } else {
+                        $('#videoPlayerHeading').addClass('d-none');
                         $('#videoPlayerSection').addClass('d-none');
                     }
                 } else {
@@ -51,6 +60,10 @@ $(document).ready(function() {
             error: function(jqXHR, textStatus, errorThrown) {
                 console.error("AJAX Error:", textStatus, errorThrown);
                 displayError("Failed to fetch movie data. Please check your connection or try again later.");
+            },
+            complete: function() {
+                $('#loadingSpinner').addClass('d-none');
+                $('#searchButton').prop('disabled', false); // Re-enable button
             }
         });
     });
@@ -78,8 +91,10 @@ $(document).ready(function() {
             // User feedback: Use path parameter format https://vidsrc.to/embed/movie/{imdbID}
             const videoUrl = `https://vidsrc.to/embed/movie/${imdbID}`;
             $('#vidsrcFrame').attr('src', videoUrl);
+            $('#videoPlayerHeading').removeClass('d-none'); // Show heading
             $('#videoPlayerSection').removeClass('d-none');
         } else {
+            $('#videoPlayerHeading').addClass('d-none'); // Hide heading
             $('#videoPlayerSection').addClass('d-none');
         }
     }
