@@ -392,9 +392,137 @@ $(document).ready(function() {
     // Allow search on pressing Enter in input fields
     $('#searchInput, #seasonInput, #episodeInput').on('keypress', function(e) {
         if (e.which === 13) { // Enter key pressed
+            // If suggestions are visible, Enter might select one, otherwise search
+            if ($('#suggestionsDropdown').is(':visible') && $('#suggestionsDropdown .list-group-item.active').length) {
+                $('#suggestionsDropdown .list-group-item.active').click();
+                return; // Avoid triggering search button if suggestion is selected
+            }
             $('#searchButton').click();
         }
     });
+
+    // --- Autocomplete Functionality ---
+    let debounceTimer;
+    $('#searchInput').on('keyup', function(e) {
+        const query = $(this).val().trim();
+        const suggestionsDropdown = $('#suggestionsDropdown');
+
+        // Clear previous timer
+        clearTimeout(debounceTimer);
+
+        if (query.length < 3) { // Minimum characters to trigger autocomplete
+            suggestionsDropdown.hide().empty();
+            return;
+        }
+
+        // Ignore up/down/enter keys for this specific handler to allow navigation
+        if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter") {
+            return;
+        }
+
+        debounceTimer = setTimeout(() => {
+            const searchType = $('#searchType').val();
+            let omdbSearchType = '';
+            if (searchType === 'movie' || searchType === 'movie-embed') {
+                omdbSearchType = 'movie';
+            } else if (searchType === 'tv' || searchType === 'tv-embed' || searchType === 'episode-embed') {
+                omdbSearchType = 'series';
+            } else {
+                suggestionsDropdown.hide().empty();
+                return; // Only provide suggestions for movies/series
+            }
+
+            $.ajax({
+                url: omdbBaseUrl,
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                    apikey: omdbApiKey,
+                    s: query, // 's' parameter for search by title (multiple results)
+                    type: omdbSearchType
+                },
+                success: function(data) {
+                    suggestionsDropdown.empty();
+                    if (data.Response === "True" && data.Search) {
+                        data.Search.slice(0, 5).forEach(item => { // Show top 5 suggestions
+                            const suggestionItem = $(`<a href="#" class="list-group-item list-group-item-action suggestion-item">${item.Title} (${item.Year})</a>`);
+                            suggestionItem.on('click', function(e) {
+                                e.preventDefault();
+                                $('#searchInput').val(item.Title); // Fill input with selected title
+                                suggestionsDropdown.hide().empty();
+                                // Optionally, trigger search directly:
+                                // $('#searchButton').click();
+                            });
+                            suggestionsDropdown.append(suggestionItem);
+                        });
+                        if (data.Search.length > 0) {
+                            suggestionsDropdown.show();
+                        } else {
+                            suggestionsDropdown.hide();
+                        }
+                    } else {
+                        suggestionsDropdown.hide();
+                    }
+                },
+                error: function() {
+                    console.error("Error fetching autocomplete suggestions.");
+                    suggestionsDropdown.hide().empty();
+                }
+            });
+        }, 300); // Debounce time in ms
+    });
+
+    // Keyboard navigation for suggestions
+    $('#searchInput').on('keydown', function(e) {
+        const suggestionsDropdown = $('#suggestionsDropdown');
+        if (!suggestionsDropdown.is(':visible') || suggestionsDropdown.children().length === 0) {
+            return;
+        }
+
+        let currentActive = suggestionsDropdown.find('.list-group-item.active');
+
+        if (e.key === "ArrowDown") {
+            e.preventDefault();
+            if (currentActive.length === 0) {
+                suggestionsDropdown.children().first().addClass('active');
+            } else {
+                currentActive.removeClass('active');
+                let next = currentActive.next();
+                if (next.length === 0) { // If at the end, cycle to first
+                    next = suggestionsDropdown.children().first();
+                }
+                next.addClass('active');
+            }
+        } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            if (currentActive.length === 0) {
+                suggestionsDropdown.children().last().addClass('active');
+            } else {
+                currentActive.removeClass('active');
+                let prev = currentActive.prev();
+                if (prev.length === 0) { // If at the beginning, cycle to last
+                    prev = suggestionsDropdown.children().last();
+                }
+                prev.addClass('active');
+            }
+        } else if (e.key === "Enter") {
+            if (currentActive.length > 0) {
+                e.preventDefault(); // Prevent form submission if handled by suggestion click
+                currentActive.click();
+            }
+        } else if (e.key === "Escape") {
+            suggestionsDropdown.hide().empty();
+        }
+    });
+
+
+    // Hide suggestions when clicking outside
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.input-group').length) {
+            $('#suggestionsDropdown').hide().empty();
+        }
+    });
+
 
     // Load latest movies by default on page load (optional)
     // fetchLatest('movies', currentMoviesPage, 'latestMoviesList', 'moviesPageNum', 'prevMoviesPage', 'nextMoviesPage');

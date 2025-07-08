@@ -232,6 +232,40 @@ header.text-center.mb-4 h1 {
     overflow-y: auto; /* Ensure scrollbar appears if content overflows */
 }
 
+/* Autocomplete Suggestions Dropdown */
+#suggestionsDropdown .list-group-item {
+    cursor: pointer;
+    background-color: #2c2c2c; /* Match other list items */
+    border-color: #444; /* Match other list items */
+    color: #e0e0e0; /* Match other list items */
+    padding: 0.4rem 0.6rem; /* Consistent padding */
+    font-size: 0.8rem; /* Consistent font size */
+    line-height: 1.4; /* Consistent line height */
+}
+
+#suggestionsDropdown .list-group-item:hover,
+#suggestionsDropdown .list-group-item:focus,
+#suggestionsDropdown .list-group-item.active { /* Style for active/hovered suggestion */
+    background-color: #383838;
+    color: #ffffff;
+}
+
+#suggestionsDropdown {
+    max-height: 200px; /* Adjust as needed, can be taller if desired */
+    overflow-y: auto;
+    border: 1px solid #444; /* Add border for definition */
+    border-top: none; /* Avoid double border with input */
+    display: none; /* Hidden by default */
+    /* Position is set inline in HTML for now, can be moved here if preferred */
+    /* For example: position: absolute; width: 100%; z-index: 1000; top: 100%; left: 0; */
+    border-radius: 0 0 0.25rem 0.25rem; /* Optional: rounded bottom corners */
+}
+
+/* Ensure the input group layout is relative for absolute positioning of dropdown */
+.input-group {
+    position: relative; /* This is critical for the dropdown positioning */
+}
+
 
 #videoTitle {
     font-size: 1.1rem; /* Compact video title */
