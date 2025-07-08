@@ -248,6 +248,8 @@ $(document).ready(function() {
             tvshows: `tvshows/latest/page-${page}.json`,
             episodes: `episodes/latest/page-${page}.json`
         };
+        const tmdbPosterBaseUrl = 'https://image.tmdb.org/t/p/w300'; // w300 or w500 for posters
+        const placeholderPoster = 'https://via.placeholder.com/300x450.png?text=No+Poster';
 
         if (!endpointMap[type]) {
             displayError("Invalid latest content type.");
@@ -261,54 +263,91 @@ $(document).ready(function() {
             method: 'GET',
             dataType: 'json',
             success: function(data) {
-                const listContainer = $(`#${containerId}`);
-                listContainer.empty();
+                const gridContainer = $(`#${containerId}`);
+                gridContainer.empty();
                 if (data && data.result && data.result.length > 0) {
                     data.result.forEach(item => {
-                        // Adjusting to use available fields from the new API
-                        // Assuming 'item.title' and 'item.imdb_id' or 'item.tmdb_id' are available
-                        // And 'item.poster_path' or similar for image
-                        // The exact fields need to be confirmed from actual API response
-                        let title = item.title || item.name || 'Unknown Title'; // name for TV shows
+                        let title = item.title || item.name || 'Unknown Title';
                         let imdbId = item.imdb_id;
-                        let tmdbId = item.tmdb_id;
+                        let tmdbId = item.tmdb_id; // Prefer this for poster
                         let mediaType = type === 'movies' ? 'movie' : (type === 'tvshows' ? 'tv' : 'episode');
                         let season = item.season_number;
                         let episodeNum = item.episode_number;
+                        let showImdbId = item.show_imdb_id; // For episodes
+                        let showTmdbId = item.show_tmdb_id; // For episodes
 
-                        // Try to get a displayable ID
-                        let displayId = imdbId || tmdbId;
-                        if (!displayId && mediaType === 'episode' && item.show_imdb_id) {
-                            displayId = item.show_imdb_id; // For episodes, use show's ID if item ID not present
+                        let posterUrl = placeholderPoster;
+                        if (item.poster_path && item.poster_path !== "N/A") { // Assuming vidsrc might provide this
+                             if (item.poster_path.startsWith('/')) { // typical for TMDB partial paths
+                                posterUrl = tmdbPosterBaseUrl + item.poster_path;
+                            } else {
+                                posterUrl = item.poster_path; // Assuming it's a full URL
+                            }
+                        } else if (tmdbId && mediaType !== 'episode') { // if item is movie/tv show and has tmdbId, could fetch its poster path
+                            // This would require another API call to TMDB. For now, we rely on vidsrc.
+                            // If vidsrc provides a 'poster' field directly, use that.
+                            // Let's assume `item.poster` might be a direct full URL if `poster_path` isn't there.
+                            if(item.poster) posterUrl = item.poster;
+                        } else if (showTmdbId && mediaType === 'episode') {
+                             // Similar for episode's show poster
+                             if(item.show_poster) posterUrl = item.show_poster; // Assuming a field like 'show_poster'
                         }
 
 
-                        let itemHtml = `<a href="#" class="list-group-item list-group-item-action latest-item"
-                                           data-id="${displayId}"
-                                           data-tmdb-id="${tmdbId || ''}"
-                                           data-type="${mediaType}"
-                                           data-title="${title.replace(/"/g, '&quot;')}"
-                                           ${mediaType === 'episode' && season ? `data-season="${season}"` : ''}
-                                           ${mediaType === 'episode' && episodeNum ? `data-episode="${episodeNum}"` : ''}>
-                                           ${title}
-                                           ${mediaType === 'episode' && season && episodeNum ? ` (S${season} E${episodeNum})` : ''}
-                                        </a>`;
-                        listContainer.append(itemHtml);
+                        // For episodes, the main ID for searching might be the show's ID
+                        let searchId = tmdbId || imdbId;
+                        let searchTitle = title;
+                        let itemSearchType = mediaType;
+
+                        if (mediaType === 'episode') {
+                            searchId = showTmdbId || showImdbId || tmdbId || imdbId; // Prefer show's ID for episode context
+                            // Title for display might be episode title, but for search, show title might be better.
+                            // Assuming `item.show_title` or `item.name` (for the show) might be available.
+                            // For now, we'll use the episode title and its direct IDs if available.
+                            // The click handler will need to be smart.
+                            if (item.show_title) searchTitle = item.show_title;
+                        }
+
+
+                        let cardHtml = `
+                            <div class="col">
+                                <div class="card shadow-sm latest-item-card h-100"
+                                     data-search-id="${searchId || ''}"
+                                     data-tmdb-id="${tmdbId || ''}"
+                                     data-imdb-id="${imdbId || ''}"
+                                     data-show-tmdb-id="${showTmdbId || ''}"
+                                     data-show-imdb-id="${showImdbId || ''}"
+                                     data-type="${itemSearchType}"
+                                     data-title="${searchTitle.replace(/"/g, '&quot;')}"
+                                     ${season ? `data-season="${season}"` : ''}
+                                     ${episodeNum ? `data-episode="${episodeNum}"` : ''}
+                                     data-display-title="${title.replace(/"/g, '&quot;')}"
+                                     >
+                                    <img src="${posterUrl}" class="card-img-top" alt="${title}" style="aspect-ratio: 2/3; object-fit: cover;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${title}</h6>
+                                        ${mediaType === 'episode' && season && episodeNum ? `<p class="card-text small mb-0">S${season} E${episodeNum}</p>` : ''}
+                                    </div>
+                                </div>
+                            </div>`;
+                        gridContainer.append(cardHtml);
                     });
                     $(`#${pageNumId}`).text(page);
                     $(`#${prevBtnId}, #${nextBtnId}`).removeClass('d-none');
                     if (page === 1) $(`#${prevBtnId}`).addClass('d-none');
-                    // We don't know total pages, so Next button is always shown for now
-                    // Could hide Next if results are less than expected per page (e.g. < 20)
+                    if (data.result.length < 20) { // Assuming 20 items per page, hide next if fewer
+                        $(`#${nextBtnId}`).addClass('d-none');
+                    }
                 } else {
-                    listContainer.html('<li class="list-group-item">No items found.</li>');
-                    $(`#${nextBtnId}`).addClass('d-none'); // No more items if current page is empty
+                    gridContainer.html('<div class="col"><p>No items found.</p></div>');
+                    $(`#${nextBtnId}`).addClass('d-none');
                     if (page === 1) $(`#${prevBtnId}`).addClass('d-none');
                 }
             },
-            error: function() {
-                displayError(`Failed to load latest ${type}.`);
-                $(`#${containerId}`).html(`<li class="list-group-item">Error loading data.</li>`);
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error(`Failed to load latest ${type}:`, textStatus, errorThrown, jqXHR.responseText);
+                displayError(`Failed to load latest ${type}. Check console for details.`);
+                gridContainer.html('<div class="col"><p>Error loading data.</p></div>');
             }
         });
     }
@@ -325,48 +364,53 @@ $(document).ready(function() {
     $('#prevEpisodesPage').on('click', function() { if (currentEpisodesPage > 1) { currentEpisodesPage--; fetchLatest('episodes', currentEpisodesPage, 'latestEpisodesList', 'episodesPageNum', 'prevEpisodesPage', 'nextEpisodesPage'); } });
     $('#nextEpisodesPage').on('click', function() { currentEpisodesPage++; fetchLatest('episodes', currentEpisodesPage, 'latestEpisodesList', 'episodesPageNum', 'prevEpisodesPage', 'nextEpisodesPage'); });
 
-    // Click handler for items in the "latest" lists
-    $(document).on('click', '.latest-item', function(e) {
+    // Click handler for items in the "latest" content cards
+    $(document).on('click', '.latest-item-card', function(e) {
         e.preventDefault();
-        hideAllSections(true); // keep error section
+        // hideAllSections(true); // Don't hide sections, just populate search
 
-        const id = $(this).data('id');
-        const tmdbId = $(this).data('tmdb-id'); // Prefer TMDB ID if available for vidsrc
-        const type = $(this).data('type');
-        const title = $(this).data('title');
+        const searchId = $(this).data('search-id'); // This should be the ID to search for (TMDB or IMDb)
+        const itemType = $(this).data('type'); // 'movie', 'tv', or 'episode'
+        const displayTitle = $(this).data('display-title'); // Title to put in search box (could be movie/show/episode title)
         const season = $(this).data('season');
         const episode = $(this).data('episode');
+        const showTmdbId = $(this).data('show-tmdb-id');
+        const showImdbId = $(this).data('show-imdb-id');
 
-        let finalId = tmdbId || id; // Use TMDB if present, otherwise IMDb
-        if (!finalId) {
-            displayError("No valid ID found for this item.");
+        let targetSearchType = '';
+        let idToSearch = searchId;
+
+        if (itemType === 'movie') {
+            targetSearchType = 'movie-embed'; // Or 'movie' if we want OMDb details first
+        } else if (itemType === 'tv') {
+            targetSearchType = 'tv-embed'; // Or 'tv'
+        } else if (itemType === 'episode') {
+            targetSearchType = 'episode-embed';
+            idToSearch = showTmdbId || showImdbId || searchId; // For episodes, search by show's ID
+            if (season) $('#seasonInput').val(season);
+            if (episode) $('#episodeInput').val(episode);
+        }
+
+        if (!idToSearch) {
+            displayError("No valid ID found for this item to initiate a search.");
+            // Fallback to title search if ID is missing, though embed types prefer IDs
+            // $('#searchInput').val(displayTitle);
+            // if (itemType === 'movie') $('#searchType').val('movie'); // OMDb title search
+            // else if (itemType === 'tv') $('#searchType').val('tv'); // OMDb title search
             return;
         }
 
-        let embedUrl;
-        let videoTitle = title;
+        $('#searchInput').val(idToSearch); // Populate with ID for embed types
+        // $('#searchInput').val(displayTitle); // Or populate with Title if preferring OMDb search first
 
-        if (type === 'movie') {
-            embedUrl = buildEmbedUrl('movie', finalId);
-        } else if (type === 'tv') {
-            embedUrl = buildEmbedUrl('tv', finalId);
-        } else if (type === 'episode') {
-            if (!season || !episode) {
-                // If episode lacks S/E numbers, try to embed the show
-                // This might happen if API gives episode title but not its S/E for some reason
-                embedUrl = buildEmbedUrl('tv', finalId); // finalId should be show's ID here
-                videoTitle = `TV Show: ${title}`; // Title might be episode title, adjust if needed
-            } else {
-                 embedUrl = buildEmbedUrl('episode', finalId, season, episode); // finalId should be show's ID
-                 videoTitle = `${title} - S${season}E${episode}`;
-            }
-        }
+        $('#searchType').val(targetSearchType).trigger('change'); // Set type and trigger its change handler
 
-        if (embedUrl) {
-            embedVideo(embedUrl, videoTitle);
-        } else {
-            displayError("Could not construct embed URL for selected item.");
-        }
+        // Scroll to top to see search bar
+        $('html, body').animate({ scrollTop: 0 }, 300);
+        $('#searchInput').focus();
+
+        // Optionally, trigger search:
+        // $('#searchButton').click();
     });
 
 

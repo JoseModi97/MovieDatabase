@@ -266,6 +266,104 @@ header.text-center.mb-4 h1 {
     position: relative; /* This is critical for the dropdown positioning */
 }
 
+/* Latest Content Card Styling */
+.latest-item-card {
+    background-color: #1e1e1e; /* Dark card background consistent with OMDb card */
+    border: 1px solid #333;   /* Subtle border */
+    color: #e0e0e0;           /* Light text */
+    cursor: pointer;
+    transition: transform .2s ease-in-out, box-shadow .2s ease-in-out;
+    display: flex; /* Ensure cards in a row are same height if using h-100 */
+    flex-direction: column; /* Ensure card body can push footer down if needed */
+}
+
+.latest-item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; /* Softer shadow for dark theme */
+}
+
+.latest-item-card .card-img-top {
+    width: 100%;
+    /* aspect-ratio: 2/3; Maintain aspect ratio, moved to inline style for now */
+    /* object-fit: cover; Ensure image covers, moved to inline style for now */
+    border-bottom: 1px solid #333; /* Separator line */
+    border-radius: 0; /* Remove default top radius if card has its own */
+}
+
+.latest-item-card .card-body {
+    padding: 0.75rem; /* Compact padding */
+    flex-grow: 1; /* Allow body to take up space */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes title up and details down */
+}
+
+.latest-item-card .card-title {
+    font-size: 0.85rem; /* Smaller title for cards */
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 0.25rem; /* Reduced margin */
+    /* Clamp text to 2 lines with ellipsis if it overflows */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(0.85rem * 1.4 * 2); /* Approx 2 lines height based on font-size and line-height */
+}
+
+.latest-item-card .card-text {
+    font-size: 0.75rem; /* Smaller text for details */
+    color: #c0c0c0;
+}
+
+
+/* Adjustments for the containers of these cards */
+#latestMoviesList.row,
+#latestTvShowsList.row,
+#latestEpisodesList.row {
+    max-height: 500px; /* Increased height to show more cards */
+    overflow-y: auto;
+    padding: 5px; /* Add some padding around the grid */
+}
+
+/* Styling for scrollbars in dark theme (Webkit browsers) */
+#latestMoviesList::-webkit-scrollbar,
+#latestTvShowsList::-webkit-scrollbar,
+#latestEpisodesList::-webkit-scrollbar,
+#suggestionsDropdown::-webkit-scrollbar {
+    width: 8px;
+}
+
+#latestMoviesList::-webkit-scrollbar-track,
+#latestTvShowsList::-webkit-scrollbar-track,
+#latestEpisodesList::-webkit-scrollbar-track,
+#suggestionsDropdown::-webkit-scrollbar-track {
+    background: #2c2c2c;
+}
+
+#latestMoviesList::-webkit-scrollbar-thumb,
+#latestTvShowsList::-webkit-scrollbar-thumb,
+#latestEpisodesList::-webkit-scrollbar-thumb,
+#suggestionsDropdown::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+    border: 2px solid #2c2c2c;
+}
+
+#latestMoviesList::-webkit-scrollbar-thumb:hover,
+#latestTvShowsList::-webkit-scrollbar-thumb:hover,
+#latestEpisodesList::-webkit-scrollbar-thumb:hover,
+#suggestionsDropdown::-webkit-scrollbar-thumb:hover {
+    background-color: #777;
+}
+
+/* Ensure columns in the card grid have some bottom margin for spacing, g-3 handles this in Bootstrap 5.1+ */
+/* If Bootstrap version is older or for more control: */
+/* .latest-item-card { margin-bottom: 1rem; } */
+
+
+
 
 #videoTitle {
     font-size: 1.1rem; /* Compact video title */
