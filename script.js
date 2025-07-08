@@ -2,6 +2,74 @@
 
 let currentOmdbData = null; // To store OMDb data for later playback. Moved global for wider access.
 
+function displayLatestMovies(moviesArray) {
+    const $latestMoviesGrid = $('#latestMoviesGrid');
+    $latestMoviesGrid.empty();
+
+    if (!moviesArray || moviesArray.length === 0) {
+        $latestMoviesGrid.html('<p class="text-center col-12">No movies to display.</p>');
+        return;
+    }
+    const moviesToShow = moviesArray.slice(0, 6);
+    moviesToShow.forEach(movie => {
+        const posterSrc = (movie.Poster && movie.Poster !== "N/A") ? movie.Poster : 'https://via.placeholder.com/300x450.png?text=No+Poster';
+        const movieCardHtml = `
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4 d-flex align-items-stretch">
+                <div class="card h-100 movie-card-latest" data-imdbid="${movie.imdbID}" data-title="${movie.Title}">
+                    <img src="${posterSrc}" class="card-img-top" alt="${movie.Title} Poster" style="object-fit: cover; height: 220px;">
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title" style="font-size: 0.9rem; margin-bottom: 0.25rem;">${movie.Title}</h6>
+                        <p class="card-text mb-0"><small class="text-muted">Year: ${movie.Year}</small></p>
+                    </div>
+                </div>
+            </div>`;
+        $latestMoviesGrid.append(movieCardHtml);
+    });
+
+    $('#latestMoviesGrid .movie-card-latest').on('click', function() {
+        const imdbID = $(this).data('imdbid'); // Get IMDb ID from data attribute
+        $('#searchInput').val(imdbID);        // Populate search input with IMDb ID
+        $('#searchType').val('movie');        // Ensure search type is 'movie' for OMDb ID/Title search
+        // OMDb API handles 'i' parameter for ID search and 't' for title,
+        // 'movie' type with an IMDb ID will be treated as an ID search by fetchOmdbDetails.
+        $('#searchType').trigger('change');   // Trigger change for any UI updates tied to search type
+        $('#searchButton').click();           // Trigger the main search button
+
+        // Optional: Scroll to search results area or top of page
+        $('html, body').animate({
+            scrollTop: $('.container.mt-5').offset().top // Scrolls to the main container
+        }, 500);
+    });
+}
+
+function fetchLatestMovies(apiKey, baseUrl) {
+    const currentYear = new Date().getFullYear();
+    const $latestMoviesGrid = $('#latestMoviesGrid');
+    $latestMoviesGrid.html('<p class="text-center col-12">Loading latest movies...</p>');
+
+    $.ajax({
+        url: baseUrl,
+        method: 'GET',
+        dataType: 'json',
+        data: { apikey: apiKey, s: 'movie', type: 'movie', y: currentYear },
+        success: function(data) {
+            if (data.Response === "True" && data.Search) {
+                displayLatestMovies(data.Search);
+            } else {
+                let errorMessage = data.Error || "No latest movies found for the current year.";
+                if (data.Error === "Movie not found!") {
+                    errorMessage = `No movies found for ${currentYear} with the term "movie".`;
+                }
+                $latestMoviesGrid.html(`<p class="text-center text-warning col-12">${errorMessage}</p>`);
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error("OMDb AJAX Error (Latest Movies):", textStatus, errorThrown);
+            $latestMoviesGrid.html('<p class="text-center text-danger col-12">Failed to fetch latest movies.</p>');
+        }
+    });
+}
+
 function displayError(message) {
     $('#errorAlert').text(message).removeClass('d-none');
 }
@@ -44,8 +112,41 @@ function displayOmdbDetails(data) {
     }
 }
 
-// buildEmbedUrl remains global for now as its usage pattern is similar
-// and we are focusing on fixing OMDb search first.
+function fetchOmdbDetails(query, type, apiKey, baseUrl) {
+    let searchParams = { apikey: apiKey, plot: 'full' };
+    if (query.toLowerCase().startsWith('tt') && /^\d+$/.test(query.substring(2))) {
+        searchParams.i = query;
+    } else {
+        searchParams.t = query;
+    }
+    if (type === 'tv') {
+        searchParams.type = 'series';
+    } else {
+        searchParams.type = 'movie';
+    }
+
+    $.ajax({
+        url: baseUrl,
+        method: 'GET',
+        dataType: 'json',
+        data: searchParams,
+        success: function(data) {
+            if (data.Response === "True") {
+                currentOmdbData = data; // Set global currentOmdbData
+                displayOmdbDetails(data);
+            } else {
+                displayError(data.Error || "Media not found in OMDb.");
+                currentOmdbData = null;
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.error("OMDb AJAX Error:", textStatus, errorThrown);
+            displayError("Failed to fetch OMDb data.");
+            currentOmdbData = null;
+        }
+    });
+}
+
 function buildEmbedUrl(type, id, season, episode, vidsrcBaseUrl) {
     let url = vidsrcBaseUrl;
     let queryParams = [];
@@ -103,42 +204,7 @@ $(document).ready(function() {
     // Initial UI setup
     hideAllSections();
     $('#searchType').trigger('change');
-
-    // Define fetchOmdbDetails inside ready to close over omdbApiKey and omdbBaseUrl
-    function fetchOmdbDetails(query, type) {
-        let searchParams = { apikey: omdbApiKey, plot: 'full' }; // Uses omdbApiKey from outer scope
-        if (query.toLowerCase().startsWith('tt') && /^\d+$/.test(query.substring(2))) {
-            searchParams.i = query;
-        } else {
-            searchParams.t = query;
-        }
-        if (type === 'tv') {
-            searchParams.type = 'series';
-        } else {
-            searchParams.type = 'movie';
-        }
-
-        $.ajax({
-            url: omdbBaseUrl, // Uses omdbBaseUrl from outer scope
-            method: 'GET',
-            dataType: 'json',
-            data: searchParams,
-            success: function(data) {
-                if (data.Response === "True") {
-                    currentOmdbData = data;
-                    displayOmdbDetails(data);
-                } else {
-                    displayError(data.Error || "Media not found in OMDb.");
-                    currentOmdbData = null;
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                console.error("OMDb AJAX Error:", textStatus, errorThrown);
-                displayError("Failed to fetch OMDb data.");
-                currentOmdbData = null;
-            }
-        });
-    }
+    fetchLatestMovies(omdbApiKey, omdbBaseUrl);
 
     // --- Event Handlers ---
     $('#searchType').on('change', function() {
@@ -169,10 +235,11 @@ $(document).ready(function() {
             displayError("Please enter a search query.");
             return;
         }
+        $('#latestMoviesSection').addClass('d-none'); // Hide latest movies section
         hideAllSections();
 
         if (searchType === 'movie' || searchType === 'tv') {
-            fetchOmdbDetails(query, searchType); // Call updated function (omdbApiKey, omdbBaseUrl are in its closure)
+            fetchOmdbDetails(query, searchType, omdbApiKey, omdbBaseUrl);
         } else {
             let embedUrl = '';
             let videoTitle = `Playing content for ID: ${query}`;
