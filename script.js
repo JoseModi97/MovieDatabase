@@ -1,127 +1,21 @@
 // --- Global Helper Functions ---
 
 let currentOmdbData = null; // To store OMDb data for later playback.
-let latestMoviesCache = null; // Cache for latest movies
+// latestMoviesCache = null; // Removed: Cache for latest movies was here
 
 // --- UI Navigation States ---
-function showLatestReleasesView() {
-    hideAllSections();
-    $('#latestMoviesSection').removeClass('d-none');
-    $('.navbar-nav .nav-link').removeClass('active');
-    $('#latestReleasesNavLink').addClass('active');
-    // Fetch if not cached or explicitly told to refresh
-    if (!latestMoviesCache) {
-        fetchLatestMovies($('#omdbApiKey').val(), $('#omdbBaseUrl').val()); // Assuming API key/URL are stored or accessible
-    } else {
-        displayLatestMovies(latestMoviesCache);
-    }
-    // Hide search results/player specific elements
-    $('#omdbDetailsCard').addClass('d-none');
-    $('#videoPlayerSection').addClass('d-none');
-    $('#searchQuerySection').addClass('d-none'); // Hide the main search input section
-}
+// function showLatestReleasesView() { ... } // Removed
 
 function showSearchView() {
-    hideAllSections();
+    hideAllSections(); // Hides OMDb details and video player
     $('#searchQuerySection').removeClass('d-none'); // Show the main search input section
-    $('.navbar-nav .nav-link').removeClass('active');
-    $('#searchNavLink').addClass('active');
-    // Clear previous search results if any, but keep search bar visible
-    $('#omdbDetailsCard').addClass('d-none');
-    $('#videoPlayerSection').addClass('d-none');
-    $('#latestMoviesSection').addClass('d-none');
+    $('.navbar-nav .nav-link').removeClass('active'); // Deactivate all nav links
+    $('#searchNavLink').addClass('active'); // Activate the "Search" nav link
     $('#searchInput').focus();
 }
 
-
-function displayLatestMovies(moviesArray) {
-    const $latestMoviesGrid = $('#latestMoviesGrid');
-    $latestMoviesGrid.empty(); // Clear previous items
-
-    if (!moviesArray || moviesArray.length === 0) {
-        $latestMoviesGrid.html('<p class="text-center col-12">No movies to display.</p>');
-        return;
-    }
-    latestMoviesCache = moviesArray; // Cache the results
-
-    const moviesToShow = moviesArray.slice(0, 12); // Show up to 12 movies
-    moviesToShow.forEach(movie => {
-        const posterSrc = (movie.Poster && movie.Poster !== "N/A") ? movie.Poster : 'https://via.placeholder.com/300x450.png?text=No+Poster';
-        const movieCardHtml = `
-            <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4 d-flex align-items-stretch">
-                <div class="card h-100 movie-card-latest" data-imdbid="${movie.imdbID}" data-title="${movie.Title}" style="cursor:pointer;">
-                    <img src="${posterSrc}" class="card-img-top" alt="${movie.Title} Poster" style="object-fit: cover; height: 220px;">
-                    <div class="card-body d-flex flex-column p-2">
-                        <h6 class="card-title" style="font-size: 0.85rem; margin-bottom: 0.15rem;">${movie.Title}</h6>
-                        <p class="card-text mb-0"><small class="text-muted">Year: ${movie.Year}</small></p>
-                    </div>
-                </div>
-            </div>`;
-        $latestMoviesGrid.append(movieCardHtml);
-    });
-
-    // Event listener for clicking on a latest movie card
-    $('#latestMoviesGrid .movie-card-latest').off('click').on('click', function() {
-        const imdbID = $(this).data('imdbid');
-        // Show search view, populate search, and trigger search
-        showSearchView(); // Switch to search view context
-        $('#searchInput').val(imdbID);
-        $('#searchType').val('movie');
-        $('#searchType').trigger('change');
-        $('#searchButton').click(); // This will handle hiding latest movies and showing results
-
-        $('html, body').animate({
-            scrollTop: $('#searchQuerySection').offset().top - 70 // Scroll to search area, adjusted for navbar
-        }, 500);
-    });
-}
-
-function fetchLatestMovies(apiKey, baseUrl) {
-    const currentYear = new Date().getFullYear();
-    const $latestMoviesGrid = $('#latestMoviesGrid');
-    $latestMoviesGrid.html('<p class="text-center col-12">Loading latest releases...</p>'); // Update loading message
-
-    $.ajax({
-        url: baseUrl,
-        method: 'GET',
-        dataType: 'json',
-        // Fetch more results to have a decent selection, OMDb 's' parameter returns 10 by default.
-        // We'll try searching for common terms or popular movies if a generic "latest" isn't directly supported well.
-        // For simplicity, we'll stick to a common search term for the current year.
-        data: { apikey: apiKey, s: 'new', type: 'movie', y: currentYear, page: 1 }, // 'new' as a search term
-        success: function(data) {
-            if (data.Response === "True" && data.Search) {
-                displayLatestMovies(data.Search);
-            } else {
-                // Try another term if 'new' fails
-                $.ajax({
-                    url: baseUrl,
-                    method: 'GET',
-                    dataType: 'json',
-                    data: { apikey: apiKey, s: 'movie', type: 'movie', y: currentYear, page: 1 },
-                    success: function(backupData) {
-                        if (backupData.Response === "True" && backupData.Search) {
-                            displayLatestMovies(backupData.Search);
-                        } else {
-                            let errorMessage = backupData.Error || "No latest movies found for the current year.";
-                             $latestMoviesGrid.html(`<p class="text-center text-warning col-12">${errorMessage}</p>`);
-                             latestMoviesCache = []; // Empty cache
-                        }
-                    },
-                    error: function() {
-                         $latestMoviesGrid.html('<p class="text-center text-danger col-12">Failed to fetch latest movies (backup).</p>');
-                         latestMoviesCache = []; // Empty cache
-                    }
-                });
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            console.error("OMDb AJAX Error (Latest Movies):", textStatus, errorThrown);
-            $latestMoviesGrid.html('<p class="text-center text-danger col-12">Failed to fetch latest movies.</p>');
-            latestMoviesCache = []; // Empty cache
-        }
-    });
-}
+// function displayLatestMovies(moviesArray) { ... } // Removed
+// function fetchLatestMovies(apiKey, baseUrl) { ... } // Removed
 
 function displayError(message) {
     $('#errorAlert').text(message).removeClass('d-none');
@@ -134,8 +28,7 @@ function hideError() {
 function hideAllSections(keepError = false) {
     $('#omdbDetailsCard').addClass('d-none');
     $('#videoPlayerSection').addClass('d-none');
-    $('#latestMoviesSection').addClass('d-none'); // Also hide latest movies section
-    // $('#searchQuerySection').addClass('d-none'); // Decided by calling function showSearchView or showLatestReleasesView
+    // $('#searchQuerySection').addClass('d-none'); // This is controlled by showSearchView
     $('#vidsrcFrame').attr('src', '');
     $('#playOmdbItemButton').addClass('d-none');
     currentOmdbData = null;
@@ -145,8 +38,6 @@ function hideAllSections(keepError = false) {
 }
 
 function displayOmdbDetails(data) {
-    // When OMDb details are shown, latest movies should be hidden
-    $('#latestMoviesSection').addClass('d-none');
     $('#searchQuerySection').removeClass('d-none'); // Ensure search section is visible
 
     $('#omdbTitle').text(data.Title || 'N/A');
@@ -263,8 +154,8 @@ $(document).ready(function() {
     const omdbBaseUrl = $('#omdbBaseUrl').val();
     const vidsrcBaseUrl = $('#vidsrcBaseUrl').val();
 
-    // Initial UI setup: Show Latest Releases by default
-    showLatestReleasesView(); // This will also fetch latest movies
+    // Initial UI setup: Default to Search View
+    showSearchView(); // Make search view the default
     $('#searchType').trigger('change'); // Initialize search type specifics
 
     // --- Navbar Event Handlers ---
@@ -273,10 +164,7 @@ $(document).ready(function() {
         showSearchView();
     });
 
-    $('#latestReleasesNavLink').on('click', function(e) {
-        e.preventDefault();
-        showLatestReleasesView();
-    });
+    // $('#latestReleasesNavLink').on('click', function(e) { ... }); // Removed
 
     // --- Other Event Handlers ---
     $('#searchType').on('change', function() {

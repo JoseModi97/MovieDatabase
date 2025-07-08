@@ -252,10 +252,7 @@ header.text-center.mb-4 h1 {
 .list-group {
     border-radius: 6px; /* Match other elements */
 }
-#latestMoviesList, #latestTvShowsList, #latestEpisodesList {
-    max-height: 250px; /* Slightly reduced height for latest lists */
-    overflow-y: auto; /* Ensure scrollbar appears if content overflows */
-}
+/* Selectors for #latestMoviesList, #latestTvShowsList, #latestEpisodesList removed as they were unused */
 
 /* Autocomplete Suggestions Dropdown */
 #suggestionsDropdown .list-group-item {
