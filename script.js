@@ -34,27 +34,29 @@ function displayLatestMovies(moviesArray) {
                 const nextNumericPart = numericPart + 1;
                 const nextImdbID = 'tt' + nextNumericPart.toString().padStart(imdbID.substring(2).length, '0');
 
+                // Set search type and trigger change first to ensure UI elements (like season/episode inputs) are correctly shown/hidden
+                $('#searchType').val('movie');
+                $('#searchType').trigger('change');
+                // Now, set the search input value. This overrides any clearing done by the 'change' handler.
                 $('#searchInput').val(nextImdbID);
-                $('#searchType').val('movie'); // Ensure search type is movie for OMDb ID search
-                $('#searchType').trigger('change'); // Trigger change to update UI if necessary
                 $('#searchButton').click();
                 $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500); // Scroll to top search/results area
             } catch (e) {
                 console.error("Error processing IMDb ID:", e);
                 // Fallback to title search if IMDb ID processing fails
                 const title = $(this).data('title');
-                $('#searchInput').val(title);
                 $('#searchType').val('movie');
                 $('#searchType').trigger('change');
+                $('#searchInput').val(title); // Set title after 'change' trigger
                 $('#searchButton').click();
                 $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
             }
         } else {
             // Fallback to title search if imdbID is not available or not in expected format
             const title = $(this).data('title');
-            $('#searchInput').val(title);
             $('#searchType').val('movie');
             $('#searchType').trigger('change');
+            $('#searchInput').val(title); // Set title after 'change' trigger
             $('#searchButton').click();
             $('html, body').animate({ scrollTop: $('.container.mt-5').offset().top }, 500);
         }
