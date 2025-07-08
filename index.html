@@ -10,67 +10,119 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-header py-4">
-        <div class="container">
-            <header class="text-center mb-4">
-                <h1 class="app-title">🎬 Movie Search App</h1>
-            </header>
+    <div class="container mt-5">
+        <header class="text-center mb-4">
+            <h1>🎬 Media Search & Player</h1>
+        </header>
 
-            <div class="row justify-content-center mb-3">
-                <div class="col-md-8 col-lg-6">
-                    <div class="input-group input-group-lg search-bar-group">
-                        <input type="text" id="movieTitleInput" class="form-control" placeholder="Enter movie title or IMDb ID">
-                        <button id="searchButton" class="btn btn-primary">Search</button>
-                    </div>
-                    <!-- Loading Spinner Placeholder -->
-                    <div id="loadingSpinner" class="text-center mt-2 d-none">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
+        <!-- Search Type Selector -->
+        <div class="row justify-content-center mb-3">
+            <div class="col-md-8">
+                <select id="searchType" class="form-select mb-2">
+                    <option value="movie" selected>Movie (OMDb)</option>
+                    <option value="tv">TV Show (OMDb)</option>
+                    <option value="movie-embed">Movie (Embed URL)</option>
+                    <option value="tv-embed">TV Show (Embed URL)</option>
+                    <option value="episode-embed">Episode (Embed URL)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Search Input Area -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Enter IMDb/TMDB ID or Title">
+                    <input type="number" id="seasonInput" class="form-control d-none" placeholder="S">
+                    <input type="number" id="episodeInput" class="form-control d-none" placeholder="Ep">
+                    <button id="searchButton" class="btn btn-primary">Search</button>
+                </div>
+                <div class="input-group mt-2">
+                     <input type="text" id="subUrlInput" class="form-control" placeholder="Subtitle URL (optional)">
+                     <input type="text" id="dsLangInput" class="form-control" placeholder="Sub Lang (e.g., en, de)" style="max-width: 150px;">
+                </div>
+                 <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" id="autoplayCheck" checked>
+                    <label class="form-check-label" for="autoplayCheck">Autoplay</label>
+                </div>
+                <div class="form-check form-switch mt-2 d-none" id="autonextSwitchContainer">
+                    <input class="form-check-input" type="checkbox" id="autonextCheck">
+                    <label class="form-check-label" for="autonextCheck">Autonext</label>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="container mt-4">
         <!-- Error Alert Placeholder -->
-        <div id="errorAlert" class="alert alert-danger d-none mx-auto col-md-8 col-lg-6" role="alert">
-            {/* Error message will be set by JS */}
+        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
+            Error message.
         </div>
 
-        <!-- Movie Details Card -->
-        <div id="movieDetailsCard" class="card shadow-sm d-none">
+        <!-- OMDb Details Card (Initially for movies/TV shows from OMDb) -->
+        <div id="omdbDetailsCard" class="card shadow-sm d-none">
             <div class="row g-0">
                 <div class="col-md-4 text-center">
-                    <img id="moviePoster" src="" class="img-fluid rounded-start p-2" alt="Movie Poster" style="max-height: 450px;">
+                    <img id="omdbPoster" src="" class="img-fluid rounded-start p-2" alt="Poster" style="max-height: 450px;">
                 </div>
                 <div class="col-md-8">
                     <div class="card-body">
-                        <h5 id="movieTitle" class="card-title"></h5>
+                        <h5 id="omdbTitle" class="card-title"></h5>
                         <p class="card-text">
-                            <strong>Year:</strong> <span id="movieYear"></span><br>
-                            <strong>Genre:</strong> <span id="movieGenre"></span><br>
-                            <strong>Director:</strong> <span id="movieDirector"></span><br>
-                            <strong>Actors:</strong> <span id="movieActors"></span><br>
-                            <strong>Plot:</strong> <span id="moviePlot"></span><br>
-                            <strong>IMDb Rating:</strong> <span id="movieRating"></span>
+                            <strong>Type:</strong> <span id="omdbType"></span><br>
+                            <strong>Year:</strong> <span id="omdbYear"></span><br>
+                            <strong>Genre:</strong> <span id="omdbGenre"></span><br>
+                            <strong>Director:</strong> <span id="omdbDirector"></span><br>
+                            <strong>Writer:</strong> <span id="omdbWriter"></span><br>
+                            <strong>Actors:</strong> <span id="omdbActors"></span><br>
+                            <strong>Plot:</strong> <span id="omdbPlot"></span><br>
+                            <strong>IMDb Rating:</strong> <span id="omdbRating"></span>
                         </p>
+                        <button id="playOmdbItemButton" class="btn btn-success mt-2 d-none">Play Media</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Embedded Video Player -->
-        <div id="videoPlayerSection" class="mt-4 d-none text-center">
-            <h2 id="videoPlayerHeading" class="mb-3 d-none" style="font-weight: 300;">Watch Movie</h2>
-            <div class="video-wrapper mx-auto" style="max-width: 800px;"> {/* Added mx-auto and max-width */}
+        <div id="videoPlayerSection" class="mt-4 d-none">
+            <h4 id="videoTitle" class="text-center mb-2"></h4>
+            <div class="video-wrapper">
                 <iframe id="vidsrcFrame"
                         src=""
                         frameborder="0"
                         allowfullscreen
                         loading="lazy">
                 </iframe>
+            </div>
+        </div>
+
+        <!-- Latest Movies/TV Shows/Episodes Sections -->
+        <hr class="my-4">
+        <div class="row text-center mb-3">
+            <div class="col">
+                <h3>Latest Content</h3>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="d-grid">
+                    <button id="loadLatestMovies" class="btn btn-info">Load Latest Movies</button>
+                </div>
+                <div id="latestMoviesList" class="list-group mt-2" style="max-height: 300px; overflow-y: auto;"></div>
+                <div class="text-center mt-2"><button id="prevMoviesPage" class="btn btn-sm btn-secondary d-none">Prev</button> <span id="moviesPageNum">1</span> <button id="nextMoviesPage" class="btn btn-sm btn-secondary d-none">Next</button></div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-grid">
+                     <button id="loadLatestTvShows" class="btn btn-info">Load Latest TV Shows</button>
+                </div>
+                <div id="latestTvShowsList" class="list-group mt-2" style="max-height: 300px; overflow-y: auto;"></div>
+                 <div class="text-center mt-2"><button id="prevTvShowsPage" class="btn btn-sm btn-secondary d-none">Prev</button> <span id="tvShowsPageNum">1</span> <button id="nextTvShowsPage" class="btn btn-sm btn-secondary d-none">Next</button></div>
+            </div>
+            <div class="col-md-4">
+                <div class="d-grid">
+                    <button id="loadLatestEpisodes" class="btn btn-info">Load Latest Episodes</button>
+                </div>
+                <div id="latestEpisodesList" class="list-group mt-2" style="max-height: 300px; overflow-y: auto;"></div>
+                <div class="text-center mt-2"><button id="prevEpisodesPage" class="btn btn-sm btn-secondary d-none">Prev</button> <span id="episodesPageNum">1</span> <button id="nextEpisodesPage" class="btn btn-sm btn-secondary d-none">Next</button></div>
             </div>
         </div>
 

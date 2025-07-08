@@ -1,84 +1,33 @@
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Common professional font stack */
-    background-color: #e9ecef; /* Slightly different light gray for body */
-    color: #333; /* Default text color */
-    line-height: 1.6;
+    font-family: sans-serif;
+    background-color: #121212; /* Dark background */
+    color: #e0e0e0; /* Light text color */
 }
 
-.app-header {
-    background-color: #ffffff; /* White background for header area */
-    /* border-bottom: 1px solid #dee2e6; /* Subtle border */
-    box-shadow: 0 2px 4px rgba(0,0,0,.05);
-    margin-bottom: 2rem; /* Space below header */
+header h1 {
+    color: #ffffff; /* White heading */
 }
-
-.app-title { /* Changed from header h1 */
-    color: #2c3e50; /* Darker, more professional blue/gray */
-    font-weight: 300; /* Lighter font weight for a modern look */
-    font-size: 2.8rem; /* Larger title */
-    margin-bottom: 1.5rem !important; /* More space below title */
-}
-
-.search-bar-group .form-control {
-    border-right: none; /* Remove border between input and button if they are grouped */
-    box-shadow: 0 1px 3px rgba(0,0,0,.07) inset; /* Subtle inner shadow */
-}
-.search-bar-group .form-control:focus {
-    box-shadow: 0 1px 3px rgba(0,0,0,.07) inset, 0 0 0 0.25rem rgba(13,110,253,.25); /* Keep Bootstrap focus */
-}
-
 
 #movieDetailsCard {
-    margin-top: 20px;
-    margin-bottom: 2.5rem; /* More space below the card */
-    border: none; /* Removing default border for a cleaner look with shadow */
-    border-radius: 0.5rem; /* Slightly more pronounced border radius */
-}
-
-#movieDetailsCard .card-body {
-    padding: 2rem; /* Increased padding inside card body */
+    margin-top: 15px; /* Reduced margin */
+    background-color: #1e1e1e; /* Dark card background */
+    border: 1px solid #333; /* Subtle border for card */
 }
 
 #moviePoster {
     max-width: 100%;
-    border-radius: 0.35rem; /* Consistent with card body */
+    border-radius: 6px; /* Slightly reduced border-radius */
     object-fit: cover;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Softer shadow for poster */
-    border: 1px solid #dee2e6; /* Subtle border for the poster */
 }
 
-#movieDetailsCard .card-title {
-    font-size: 2rem; /* Slightly larger title in card */
-    font-weight: 500; /* Medium weight */
-    margin-bottom: 1rem;
-}
-
-#movieDetailsCard .card-text strong {
-    font-weight: 600; /* Bolder labels */
-    color: #343a40; /* Darker label color */
-    margin-right: 0.25rem;
-}
-
-#movieDetailsCard .card-text span {
-    color: #495057; /* Data color */
-}
-
-
-/* Responsive video iframe styles (Section 7.3 SRS) */
+/* Responsive video iframe styles */
 .video-wrapper {
     position: relative;
     padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
     height: 0;
     overflow: hidden;
-    border-radius: 0.5rem; /* Consistent border radius */
+    border-radius: 6px;
     background-color: #000;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.15); /* More pronounced shadow for video */
-    margin-bottom: 2rem; /* Space below video player */
-}
-
-#videoPlayerHeading {
-    color: #343a40;
-    font-size: 1.75rem;
 }
 
 .video-wrapper iframe {
@@ -87,61 +36,230 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    border: 0; /* Remove default iframe border */
+    border: 0;
 }
 
-/* Error Alert Styling */
-#errorAlert {
-    padding: 1rem 1.5rem; /* More padding */
-    font-weight: 500;
-    display: flex; /* For aligning icon and text */
-    align-items: center;
-}
-
-#errorAlert::before {
-    content: "⚠️"; /* Example: Warning icon */
-    font-size: 1.25rem;
-    margin-right: 0.75rem;
-}
-
-
-/* Custom styling for the card to enhance appearance */
 .card.shadow-sm {
-    border: none; /* Remove default card border if shadow is preferred */
+    border: 1px solid #333; /* Ensure dark theme consistency */
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important; /* Softer shadow for dark theme */
 }
 
-/* .card-title is handled by #movieDetailsCard .card-title now */
-
-.card-text strong { /* This is also handled by #movieDetailsCard .card-text strong */
-    /* color: #495057; */ /* Slightly lighter text for labels */
+.card-title {
+    font-size: 1.5rem; /* Slightly smaller title for compactness */
+    font-weight: bold;
+    color: #ffffff; /* White card title */
 }
 
-/* Ensure content stacks vertically on small screens - Bootstrap handles much of this,
-   but we can add specifics if needed. For now, relying on Bootstrap's col-md-* classes. */
-
-/* Style for the search button to make it stand out a bit more if needed */
-#searchButton {
-    /* Example: Slightly darker blue if needed, but Bootstrap primary is usually fine */
-    /* background-color: #0056b3;
-    border-color: #0056b3; */
+.card-text {
+    font-size: 0.9rem; /* Smaller text for compactness */
+    color: #c0c0c0; /* Lighter gray for card text */
 }
 
-/* Making sure the poster image in the card is well-behaved */
-@media (max-width: 767.98px) { /* Small devices (landscape phones, less than 768px) */
-    #moviePoster {
-        max-height: 350px; /* Adjust max height for smaller screens, was 300px */
-        margin-bottom: 1.5rem; /* Add some space below poster when stacked */
+.card-text strong {
+    color: #d0d0d0; /* Slightly lighter text for labels */
+}
+
+#omdbDetailsCard .card-body { /* Ensure OMDb card also has reduced padding */
+    padding: 1rem;
+}
+
+/* Input and button styling for dark theme */
+.form-select { /* Style for the new select dropdown */
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+}
+.form-select:focus {
+    background-color: #333;
+    color: #e0e0e0;
+    border-color: #555;
+    box-shadow: none;
+}
+
+.form-control {
+.form-control, .form-select { /* Combined for shared properties */
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border-color: #444;
+    height: calc(1.5em + .5rem + 2px); /* Compact height */
+    padding: .25rem .5rem;
+    font-size: 0.9rem;
+}
+
+.form-control::placeholder {
+    color: #888;
+}
+
+.form-control:focus, .form-select:focus { /* Combined for shared properties */
+    background-color: #333;
+    color: #e0e0e0;
+    border-color: #555;
+    box-shadow: none; /* Remove Bootstrap's default focus glow or customize it */
+}
+
+.btn-primary {
+    background-color: #007bff; /* Bootstrap primary blue - can be adjusted */
+    border-color: #007bff;
+    color: #ffffff;
+    padding: .25rem .5rem; /* Compact padding */
+    font-size: 0.9rem; /* Compact font size */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+.btn-success { /* For Play OMDb Item button */
+    padding: .25rem .5rem;
+    font-size: 0.9rem;
+}
+.btn-info { /* For load latest buttons */
+    font-size: 0.85rem;
+    padding: 0.3rem 0.6rem;
+}
+.btn-secondary.btn-sm { /* For pagination buttons */
+    font-size: 0.7rem;
+    padding: 0.15rem 0.35rem;
+}
+.text-center .btn-sm { /* ensure pagination buttons are centered */
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+}
+
+
+.alert-danger {
+    background-color: #721c24; /* Darker red for errors */
+    color: #f8d7da;
+    border-color: #f5c6cb;
+    font-size: 0.9rem; /* Compact font size */
+    padding: 0.5rem 0.75rem; /* Compact padding */
+}
+
+
+/* Compactness adjustments */
+.container {
+    padding-left: 10px;
+    padding-right: 10px;
+    max-width: 1200px; /* Optional: constrain max width for very large screens */
+}
+
+.mt-5 { margin-top: 1.5rem !important; }
+.mb-4 { margin-bottom: 1rem !important; }
+.mb-3 { margin-bottom: 0.75rem !important; }
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mt-2 { margin-top: 0.5rem !important; }
+.my-4 { /* For hr */
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    border-top: 1px solid #444;
+}
+
+
+header.text-center.mb-4 {
+    margin-bottom: 1rem !important;
+}
+header.text-center.mb-4 h1 {
+    font-size: 1.75rem; /* Compact header */
+}
+
+
+.row.justify-content-center.mb-4 { /* Search input row */
+    margin-bottom: 1rem !important;
+}
+.row.justify-content-center.mb-3 { /* For search type selector */
+    margin-bottom: 0.75rem !important;
+}
+
+
+.input-group {
+    font-size: 0.9rem;
+}
+/* .input-group .form-control, .input-group .form-select are handled by global .form-control, .form-select styles now */
+/* .input-group .btn is handled by global .btn-primary styles now */
+
+
+#omdbDetailsCard .card-body, #movieDetailsCard .card-body { /* Combined */
+    padding: 1rem;
+}
+
+#omdbPoster, #moviePoster { /* Combined */
+    max-height: 300px; /* Default max height */
+    object-fit: cover; /* Ensure image covers space nicely */
+}
+
+
+/* Media query adjustments for dark theme and compactness */
+@media (max-width: 767.98px) {
+    #omdbPoster, #moviePoster {
+        max-height: 200px; /* Further reduce max height for smaller screens */
+        margin-bottom: 0.5rem;
     }
-    #movieDetailsCard .card-body { /* Ensure card body text aligns left on mobile too for consistency */
-        text-align: left;
+    .card-body {
+        text-align: center;
     }
-    #movieDetailsCard .row > div.text-center { /* If poster column is text-center, keep it */
-       /* text-align: center; */ /* Let this be handled by specific classes if needed */
+    #omdbDetailsCard .row > div, #movieDetailsCard .row > div {
+        text-align: center;
     }
-    .app-title {
-        font-size: 2.2rem; /* Smaller title on mobile */
+    .card-title {
+        font-size: 1.15rem; /* Smaller title on small screens */
     }
-    #movieDetailsCard .card-title {
-        font-size: 1.6rem; /* Smaller card title on mobile */
+    .card-text {
+        font-size: 0.8rem; /* Smaller text on small screens */
     }
+    header.text-center.mb-4 h1 {
+        font-size: 1.5rem; /* More compact header on small screens */
+    }
+}
+
+/* Styles for latest content lists */
+.list-group-item {
+    background-color: #2c2c2c;
+    border-color: #444;
+    color: #e0e0e0;
+    padding: 0.4rem 0.6rem; /* Compact padding */
+    font-size: 0.8rem; /* Compact font size */
+    line-height: 1.4;
+}
+.list-group-item:hover, .list-group-item:focus {
+    background-color: #383838;
+    color: #ffffff;
+}
+.list-group {
+    border-radius: 6px; /* Match other elements */
+}
+#latestMoviesList, #latestTvShowsList, #latestEpisodesList {
+    max-height: 250px; /* Slightly reduced height for latest lists */
+    overflow-y: auto; /* Ensure scrollbar appears if content overflows */
+}
+
+
+#videoTitle {
+    font-size: 1.1rem; /* Compact video title */
+    color: #ffffff;
+    margin-bottom: 0.5rem !important;
+}
+
+.form-check-label {
+    font-size: 0.85rem; /* Compact labels */
+}
+.form-switch .form-check-input {
+    background-color: #444;
+    border-color: #555;
+    width: 2.25em; /* Slightly smaller switch */
+    height: 1.125em;
+    cursor: pointer;
+}
+.form-switch .form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+.form-check.form-switch { /* Reduce margin for switches */
+    margin-bottom: 0.25rem;
+    padding-left: 2.75em; /* Adjust padding for smaller switch */
+}
+
+/* Ensure season/episode inputs are compact */
+#seasonInput, #episodeInput {
+    max-width: 75px; /* Smaller width for S/Ep inputs, allow 3 digits */
+    text-align: center;
 }
