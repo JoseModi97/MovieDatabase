@@ -10,52 +10,85 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <header class="text-center mb-4">
+    <input type="hidden" id="omdbApiKey" value="67b85ad0">
+    <input type="hidden" id="omdbBaseUrl" value="http://www.omdbapi.com/">
+    <input type="hidden" id="vidsrcBaseUrl" value="https://vidsrc.xyz/">
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#" id="homeLink">🎬 MediaHub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#" id="searchNavLink">Search</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="latestReleasesNavLink">Latest Releases</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4"> <!-- Adjusted mt-5 to mt-4 due to navbar -->
+        <header class="text-center mb-4 d-none" id="pageHeader"> <!-- Will hide this as navbar has title -->
             <h1>🎬 Media Search & Player</h1>
         </header>
 
-        <!-- Search Type Selector -->
-        <div class="row justify-content-center mb-3">
-            <div class="col-md-8">
-                <select id="searchType" class="form-select mb-2">
-                    <option value="movie" selected>Movie (OMDb)</option>
-                    <option value="tv">TV Show (OMDb)</option>
-                    <option value="movie-embed">Movie (Embed URL)</option>
-                    <option value="tv-embed">TV Show (Embed URL)</option>
-                    <option value="episode-embed">Episode (Embed URL)</option>
-                </select>
+        <div id="searchQuerySection"> <!-- Added wrapper for search inputs and controls -->
+            <!-- Search Type Selector -->
+            <div class="row justify-content-center mb-3">
+                <div class="col-md-8">
+                    <select id="searchType" class="form-select mb-2">
+                        <option value="movie" selected>Movie (OMDb)</option>
+                        <option value="tv">TV Show (OMDb)</option>
+                        <option value="movie-embed">Movie (Embed URL)</option>
+                        <option value="tv-embed">TV Show (Embed URL)</option>
+                        <option value="episode-embed">Episode (Embed URL)</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <!-- Search Input Area -->
-        <div class="row justify-content-center mb-4">
-            <div class="col-md-8">
-                <div class="input-group">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Enter IMDb/TMDB ID or Title">
-                    <div id="suggestionsDropdown" class="list-group position-absolute w-100" style="z-index: 1000; top: 100%;"></div>
-                    <input type="number" id="seasonInput" class="form-control d-none" placeholder="S">
-                    <input type="number" id="episodeInput" class="form-control d-none" placeholder="Ep">
-                    <button id="searchButton" class="btn btn-primary">Search</button>
-                </div>
-                <div class="input-group mt-2">
-                     <input type="text" id="subUrlInput" class="form-control" placeholder="Subtitle URL (optional)">
-                     <input type="text" id="dsLangInput" class="form-control" placeholder="Sub Lang (e.g., en, de)" style="max-width: 150px;">
-                </div>
-                 <div class="form-check form-switch mt-2">
-                    <input class="form-check-input" type="checkbox" id="autoplayCheck" checked>
-                    <label class="form-check-label" for="autoplayCheck">Autoplay</label>
-                </div>
-                <div class="form-check form-switch mt-2 d-none" id="autonextSwitchContainer">
-                    <input class="form-check-input" type="checkbox" id="autonextCheck">
-                    <label class="form-check-label" for="autonextCheck">Autonext</label>
+            <!-- Search Input Area -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-md-8">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Enter IMDb/TMDB ID or Title">
+                        <div id="suggestionsDropdown" class="list-group position-absolute w-100" style="z-index: 1000; top: 100%;"></div>
+                        <input type="number" id="seasonInput" class="form-control d-none" placeholder="S">
+                        <input type="number" id="episodeInput" class="form-control d-none" placeholder="Ep">
+                        <button id="searchButton" class="btn btn-primary">Search</button>
+                    </div>
+                    <div class="input-group mt-2">
+                         <input type="text" id="subUrlInput" class="form-control" placeholder="Subtitle URL (optional)">
+                         <input type="text" id="dsLangInput" class="form-control" placeholder="Sub Lang (e.g., en, de)" style="max-width: 150px;">
+                    </div>
+                     <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" id="autoplayCheck" checked>
+                        <label class="form-check-label" for="autoplayCheck">Autoplay</label>
+                    </div>
+                    <div class="form-check form-switch mt-2 d-none" id="autonextSwitchContainer">
+                        <input class="form-check-input" type="checkbox" id="autonextCheck">
+                        <label class="form-check-label" for="autonextCheck">Autonext</label>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div> <!-- End of searchQuerySection -->
 
         <!-- Error Alert Placeholder -->
         <div id="errorAlert" class="alert alert-danger d-none" role="alert">
             Error message.
+        </div>
+
+        <!-- Latest Movies Section -->
+        <div id="latestMoviesSection" class="mb-4">
+            <h3 class="text-center mb-3">Latest Releases</h3>
+            <div id="latestMoviesGrid" class="row">
+                <!-- Latest movies will be populated here by script.js -->
+            </div>
         </div>
 
         <!-- OMDb Details Card (Initially for movies/TV shows from OMDb) -->
