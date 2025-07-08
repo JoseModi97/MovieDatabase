@@ -47,12 +47,9 @@ $(document).ready(function() {
             success: function(data) {
                 if (data.Response === "True") {
                     displayMovieDetails(data);
-                    if (data.imdbID) {
-                        embedVideo(data.imdbID);
-                    } else {
-                        $('#videoPlayerHeading').addClass('d-none');
-                        $('#videoPlayerSection').addClass('d-none');
-                    }
+                    // Removed embedVideo call and related logic
+                    $('#videoPlayerHeading').addClass('d-none');
+                    $('#videoPlayerSection').addClass('d-none');
                 } else {
                     displayError(data.Error || "Movie not found.");
                 }
@@ -86,18 +83,7 @@ $(document).ready(function() {
         $('#movieDetailsCard').removeClass('d-none');
     }
 
-    function embedVideo(imdbID) {
-        if (imdbID) {
-            // User feedback: Use path parameter format https://vidsrc.to/embed/movie/{imdbID}
-            const videoUrl = `https://vidsrc.to/embed/movie/${imdbID}`;
-            $('#vidsrcFrame').attr('src', videoUrl);
-            $('#videoPlayerHeading').removeClass('d-none'); // Show heading
-            $('#videoPlayerSection').removeClass('d-none');
-        } else {
-            $('#videoPlayerHeading').addClass('d-none'); // Hide heading
-            $('#videoPlayerSection').addClass('d-none');
-        }
-    }
+// Removed embedVideo function
 
     function displayError(message) {
         $('#errorAlert').text(message).removeClass('d-none');
